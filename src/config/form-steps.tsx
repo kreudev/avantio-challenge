@@ -1,18 +1,26 @@
 import { FormStep, FormData, AccommodationData, OwnerData } from '@/types/form';
 import AccommodationStep from '@/components/AccommodationForm/steps/AccommodationStep';
 import OwnerStep from '@/components/AccommodationForm/steps/OwnerStep';
+import SummaryStep from '@/components/AccommodationForm/steps/SummaryStep';
+import ResultStep from '@/components/AccommodationForm/steps/ResultStep';
 
 export type StepDataType<T extends FormStep> = T extends 'accommodation' 
   ? AccommodationData 
   : T extends 'owner' 
     ? OwnerData 
-    : Record<string, unknown>;
+    : T extends 'summary'
+      ? FormData
+      : T extends 'result'
+        ? { isSuccess: boolean; error?: string }
+        : never;
 
 interface BaseStepProps<T extends FormStep> {
     data: StepDataType<T>;
     onUpdate: (data: Partial<StepDataType<T>>) => void;
     onNext: () => void;
     onBack: () => void;
+    onSubmit?: () => void;
+    onReset?: () => void;
 }
 
 export interface StepConfig<T extends FormStep = FormStep> {
@@ -34,7 +42,12 @@ export const FORM_STEPS = [
     },
     {
         key: 'summary' as const,
-        Component: () => <div>Summary</div>,
+        Component: SummaryStep as React.ComponentType<BaseStepProps<'summary'>>,
         title: 'Summary',
+    },
+    {
+        key: 'result' as const,
+        Component: ResultStep as React.ComponentType<BaseStepProps<'result'>>,
+        title: 'Result',
     },
 ] satisfies StepConfig[]; 

@@ -20,7 +20,7 @@ export interface FormData {
   summary?: Record<string, unknown>;
 }
 
-export type FormStep = 'accommodation' | 'owner' | 'summary';
+export type FormStep = 'accommodation' | 'owner' | 'summary' | 'result';
 
 export interface ValidationErrors {
   [key: string]: string;

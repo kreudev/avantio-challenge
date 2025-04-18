@@ -19,6 +19,10 @@ const AccommodationForm: React.FC = () => {
       phone: '',
     },
   });
+  const [submissionState, setSubmissionState] = useState<{
+    isSuccess: boolean;
+    error?: string;
+  } | null>(null);
 
   const handleNext = () => {
     const currentIndex = FORM_STEPS.findIndex(step => step.key === currentStep);
@@ -34,7 +38,55 @@ const AccommodationForm: React.FC = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    try {
+      const isSuccess = Math.random() > 0.5;
+      
+      const event = new CustomEvent('formSubmit', {
+        detail: {
+          success: isSuccess,
+          data: formData,
+        },
+      });
+      window.dispatchEvent(event);
+
+      if (isSuccess) {
+        setSubmissionState({ isSuccess: true });
+      } else {
+        throw new Error('Random submission failure');
+      }
+      
+    } catch (error) {
+      setSubmissionState({ 
+        isSuccess: false, 
+        error: error instanceof Error ? error.message : 'An unexpected error occurred' 
+      });
+    } finally {
+      setCurrentStep('result');
+    }
+  };
+
+  const handleReset = () => {
+    setFormData({
+      accommodation: {
+        name: '',
+        address: '',
+        description: '',
+        type: 'apartment',
+        photos: [],
+      },
+      owner: {
+        name: '',
+        email: '',
+        phone: '',
+      },
+    });
+    setSubmissionState(null);
+    setCurrentStep('accommodation');
+  };
+
   const updateFormData = (step: FormStep, data: Partial<FormData[keyof FormData]>) => {
+    if (step === 'result') return;
     setFormData(prev => ({
       ...prev,
       [step]: {
@@ -47,7 +99,7 @@ const AccommodationForm: React.FC = () => {
   const currentStepIndex = FORM_STEPS.findIndex(step => step.key === currentStep);
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white border rounded-3xl w-full">
+    <div className="max-w-xl mx-auto p-6 bg-white md:border md:rounded-3xl w-full flex flex-col z-10">
       <TransitionPanel
         activeIndex={currentStepIndex}
         transition={{ duration: 0.1, ease: 'easeInOut' }}
@@ -60,13 +112,21 @@ const AccommodationForm: React.FC = () => {
         {FORM_STEPS.map(step => {
           if (currentStep !== step.key) return null;
           
+          const stepData = step.key === 'summary' 
+            ? formData 
+            : step.key === 'result'
+              ? submissionState
+              : formData[step.key];
+          
           return (
             <step.Component
               key={step.key}
-              data={formData[step.key] as any}
+              data={stepData as any}
               onUpdate={(data) => updateFormData(step.key, data)}
               onNext={handleNext}
               onBack={handleBack}
+              onSubmit={handleSubmit}
+              onReset={handleReset}
             />
           );
         })}

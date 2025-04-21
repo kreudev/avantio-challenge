@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accommodation Form</title>
+    <link rel="stylesheet" href="./accommodation-form.css">
+    <script type="module" src="./accommodation-form.iife.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <accommodation-form></accommodation-form>
+    <script>
+        document.querySelector('accommodation-form').addEventListener('submit', (event) => {
+            const { success, data } = event.detail;
+            console.log('Form submitted:', { success, data });
+            alert(success ? 'Form submitted successfully!' : 'Form submission failed!');
+        });
+    </script>
+</body>
+</html> 
